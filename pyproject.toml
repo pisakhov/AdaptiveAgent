@@ -1,7 +1,7 @@
 [project]
 name = "adaptive-agent"
 version = "0.1.0"
-description = ""
+description = "Self-improving ReAct agent that iteratively optimizes its system prompt through evaluation and feedback"
 authors = [
     {name = "pisakhov", email = "pisakhov@gmail.com"}
 ]

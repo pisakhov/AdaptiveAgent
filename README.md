@@ -8,14 +8,26 @@ AdaptiveAgent runs a ReAct agent, evaluates its performance across three dimensi
 
 ## Installation
 
+1. Clone the repository:
+```bash
+git clone https://github.com/pisakhov/AdaptiveAgent.git
+cd AdaptiveAgent
+```
+
+2. Install dependencies:
 ```bash
 poetry install
 ```
 
-Set your OpenAI API key:
+3. Set up your OpenAI API key:
 ```bash
-export OPENAI_API_KEY="your-key-here"
-# or create .env file with OPENAI_API_KEY=your-key-here
+cp .env.example .env
+# Edit .env and add your OpenAI API key
+```
+
+4. Verify installation:
+```bash
+python main.py
 ```
 
 ## Usage
@@ -23,11 +35,12 @@ export OPENAI_API_KEY="your-key-here"
 ### Basic Setup
 
 ```python
+import asyncio
 from langchain_openai import ChatOpenAI
 from langgraph.checkpoint.memory import MemorySaver
 from main import AdaptiveAgent, get_location_info
 
-model = ChatOpenAI(model="gpt-4")
+model = ChatOpenAI(model="gpt-5")
 tools = [get_location_info]  # Your tools here
 agent = AdaptiveAgent(model, tools, MemorySaver())
 ```
@@ -60,3 +73,9 @@ result = await agent.tune(
 ```bash
 python main.py
 ```
+
+## Requirements
+
+- Python 3.9+
+- OpenAI API key
+- Poetry for dependency management
