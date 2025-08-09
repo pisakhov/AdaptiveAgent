@@ -355,29 +355,6 @@ docs = ["Sphinx", "furo"]
 test = ["objgraph", "psutil"]
 
 [[package]]
-name = "groq"
-version = "0.30.0"
-description = "The official Python library for the groq API"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "groq-0.30.0-py3-none-any.whl", hash = "sha256:6d9609a7778ba56432f45c1bac21b005f02c6c0aca9c1c094e65536f162c1e83"},
-    {file = "groq-0.30.0.tar.gz", hash = "sha256:919466e48fcbebef08fed3f71debb0f96b0ea8d2ec77842c384aa843019f6e2c"},
-]
-
-[package.dependencies]
-anyio = ">=3.5.0,<5"
-distro = ">=1.7.0,<2"
-httpx = ">=0.23.0,<1"
-pydantic = ">=1.9.0,<3"
-sniffio = "*"
-typing-extensions = ">=4.10,<5"
-
-[package.extras]
-aiohttp = ["aiohttp", "httpx-aiohttp (>=0.1.6)"]
-
-[[package]]
 name = "h11"
 version = "0.16.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -607,22 +584,6 @@ together = ["langchain-together"]
 xai = ["langchain-xai"]
 
 [[package]]
-name = "langchain-cerebras"
-version = "0.5.0"
-description = "An integration package connecting Cerebras and LangChain"
-optional = false
-python-versions = "<4.0,>=3.9"
-groups = ["main"]
-files = [
-    {file = "langchain_cerebras-0.5.0-py3-none-any.whl", hash = "sha256:f129df699d6eb71d8e2602d7abe9ae75c289168b2e52d33cdefe5d4982e027b9"},
-    {file = "langchain_cerebras-0.5.0.tar.gz", hash = "sha256:24cfe76358cd8c779f33c77708df08cc5fec81ed13797830396be0f52abdd80a"},
-]
-
-[package.dependencies]
-langchain-core = ">=0.3.29,<0.4.0"
-langchain-openai = ">=0.3.0,<0.4.0"
-
-[[package]]
 name = "langchain-core"
 version = "0.3.72"
 description = "Building applications with LLMs through composability"
@@ -642,38 +603,6 @@ pydantic = ">=2.7.4"
 PyYAML = ">=5.3"
 tenacity = ">=8.1.0,<8.4.0 || >8.4.0,<10.0.0"
 typing-extensions = ">=4.7"
-
-[[package]]
-name = "langchain-deepseek"
-version = "0.1.4"
-description = "An integration package connecting DeepSeek and LangChain"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "langchain_deepseek-0.1.4-py3-none-any.whl", hash = "sha256:9ce3dbfc7a40f221657ffe31e8623ea6e397f6c90de2a58d38204ac63e8f41ff"},
-    {file = "langchain_deepseek-0.1.4.tar.gz", hash = "sha256:dc105138aee4fce03badd0521e69d5508b37f5c087d92b3e8481ffb8f9563d33"},
-]
-
-[package.dependencies]
-langchain-core = ">=0.3.70,<1.0.0"
-langchain-openai = ">=0.3.28,<1.0.0"
-
-[[package]]
-name = "langchain-groq"
-version = "0.3.6"
-description = "An integration package connecting Groq and LangChain"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "langchain_groq-0.3.6-py3-none-any.whl", hash = "sha256:51aff1ecc5472e031b06f41cd2219c238b7c862935ef90e15283e5d04d9e7207"},
-    {file = "langchain_groq-0.3.6.tar.gz", hash = "sha256:ca6f94e250357d1e77b348e002d7da4fcf674fde4c9df1827431b430e45d88de"},
-]
-
-[package.dependencies]
-groq = ">=0.29.0,<1"
-langchain-core = ">=0.3.68,<1.0.0"
 
 [[package]]
 name = "langchain-openai"
@@ -1917,4 +1846,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "14c514107a7e40f8f22910855c2725d058b8d59f24fb93fca6e9d7ce9ee5353c"
+content-hash = "c9d22e7069769b7c7d35c50991229a3e9bdec9d3af7f06601dd7484633f792f8"
