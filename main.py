@@ -365,6 +365,40 @@ def get_location_info(location: str) -> str:
             "status": "error"
         })
 
+class SimplePromptPersistence:
+    """Simple persistence for optimized prompts"""
+
+    def __init__(self, file_path: str = "optimized_prompts.json"):
+        self.file_path = file_path
+
+    def save_prompts(self, thread_id: str, prompts: List[str]):
+        """Save prompts for a thread"""
+        try:
+            import json
+            data = {}
+            if os.path.exists(self.file_path):
+                with open(self.file_path, 'r') as f:
+                    data = json.load(f)
+
+            data[thread_id] = prompts
+
+            with open(self.file_path, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save prompts to {self.file_path}: {e}")
+
+    def load_prompts(self, thread_id: str) -> List[str]:
+        """Load prompts for a thread"""
+        try:
+            import json
+            if os.path.exists(self.file_path):
+                with open(self.file_path, 'r') as f:
+                    data = json.load(f)
+                    return data.get(thread_id, [])
+        except Exception as e:
+            print(f"Warning: Could not load prompts from {self.file_path}: {e}")
+        return []
+
 class AdaptiveAgent:
 
     def get_conversation_pretty(self, messages: List[BaseMessage]) -> str:
@@ -448,12 +482,14 @@ class AdaptiveAgent:
         prompt_reasoning: str
         max_attempts: int
         attempts: int
+        thread_id: str
 
     def __init__(self, model, tools, checkpointer):
         self.model = model
         self.tools = tools
         self.checkpointer = checkpointer
         self._graph = None
+        self.prompt_persistence = SimplePromptPersistence()
 
     async def tune(self, initial_prompt: str, task: str, eval_system_prompt: str, expected_react_final_response: str,
                    config: Dict[str, Any] = None, max_attempts: int = 1,
@@ -474,25 +510,44 @@ class AdaptiveAgent:
                 "scores_chain_of_thought": [],
                 "messages_counts": [],
                 "max_attempts": max_attempts,
-                "attempts": 0
+                "attempts": 0,
+                "thread_id": thread_id
             }
         elif mode == "continue":
-            config = {"configurable": {"thread_id": thread_id}}
-            state_snapshot = self.checkpointer.get(config)
-            state = state_snapshot.values if state_snapshot else {
-                "conversation": [],
-                "prompts": [initial_prompt],
-                "task": task,
-                "eval_system_prompt": eval_system_prompt,
-                "expected_react_final_response": expected_react_final_response,
-                "scores_prompt": [],
-                "scores_response": [],
-                "scores_chain_of_thought": [],
-                "messages_counts": [],
-                "max_attempts": max_attempts,
-                "attempts": 0
-            }
-            state["attempts"] = 0
+            # Load saved prompts from simple persistence
+            saved_prompts = self.prompt_persistence.load_prompts(thread_id)
+            if saved_prompts:
+                state = {
+                    "conversation": [],
+                    "prompts": saved_prompts,
+                    "task": task,
+                    "eval_system_prompt": eval_system_prompt,
+                    "expected_react_final_response": expected_react_final_response,
+                    "scores_prompt": [],
+                    "scores_response": [],
+                    "scores_chain_of_thought": [],
+                    "messages_counts": [],
+                    "max_attempts": max_attempts,
+                    "attempts": 0,
+                    "thread_id": thread_id
+                }
+            else:
+                # Fallback to init mode if no saved prompts found
+                print("No saved prompts found, falling back to init mode...")
+                state = {
+                    "conversation": [],
+                    "prompts": [initial_prompt],
+                    "task": task,
+                    "eval_system_prompt": eval_system_prompt,
+                    "expected_react_final_response": expected_react_final_response,
+                    "scores_prompt": [],
+                    "scores_response": [],
+                    "scores_chain_of_thought": [],
+                    "messages_counts": [],
+                    "max_attempts": max_attempts,
+                    "attempts": 0,
+                    "thread_id": thread_id
+                }
         result = await self._graph.ainvoke(state, config=config)
         return result
 
@@ -713,6 +768,10 @@ Create an improved system prompt that addresses the evaluation insights and feed
         preview = (new_prompt[:200] + "…") if len(new_prompt) > 200 else new_prompt
         print(f"[dim]New Prompt: {preview}[/dim]")
 
+        # Save prompts to persistence - get thread_id from state if available
+        thread_id = state.get("thread_id", "default")
+        self.prompt_persistence.save_prompts(thread_id, prompts)
+
         return {
             "prompts": prompts,
         }
@@ -739,9 +798,9 @@ if __name__ == "__main__":
         result = await agent.tune(
             initial_prompt="You are an assistant",
             task="Compare current weather in NYC vs San Francisco and recommend which city is better to be in right now.",
-            eval_system_prompt="System prompt requirements: - must use available tools for all code execution - must handle API calls properly with error checking - must create valid JSON structure - must demonstrate file I/O operations - must format output clearly - must include current time and weather data - must show working code step by step - should be robust and handle potential errors - do not reveal implementation details beforehand",
-            expected_react_final_response="Must use working api, and real time data. A clean UI-style display with NO CODE OUTPUT, only the final visual results. Should show: (1) Title header, (2) Side-by-side comparison cards for each city showing current temp, conditions, wind, humidity with appropriate emojis, (3) Current timestamp, (4) A final recommendation section with clear winner and data-driven reasoning - all formatted as a visual interface, not code. Must use real data and determine winner based on actual conditions.",
-            config={"configurable": {"thread_id": "fresh-start-2024"}, "recursion_limit": 100},
+            eval_system_prompt="System prompt requirements: - must list available tools for all code execution. - do not reveal implementation details beforehand - system prompt need to be about 200 words",
+            expected_react_final_response="A clean UI-style display with NO CODE OUTPUT, only the final visual results. Should show: (1) Title header, (2) Side-by-side comparison cards for each city showing current temp, conditions, wind, humidity with appropriate emojis, (3) Current timestamp, (4) A final recommendation section with clear winner and data-driven reasoning - all formatted as a visual interface, not code. Must use real data and determine winner based on actual conditions.",
+            config={"configurable": {"thread_id": "fresh-start-2025"}, "recursion_limit": 100},
             max_attempts=3,
             mode="continue"
         )
