@@ -477,17 +477,21 @@ class AdaptiveAgent:
                 "attempts": 0
             }
         elif mode == "continue":
-            state = self.checkpointer.load(thread_id)
-            state["prompts"].append(initial_prompt)
-            state["task"] = task
-            state["eval_system_prompt"] = eval_system_prompt
-            state["expected_react_final_response"] = expected_react_final_response
-            state["attempts"] = 0
-            state["max_attempts"] = max_attempts
-            state["scores_prompt"] = []
-            state["scores_response"] = []
-            state["scores_chain_of_thought"] = []
-            state["conversation"] = []
+            config = {"configurable": {"thread_id": thread_id}}
+            state_snapshot = self.checkpointer.get(config)
+            state = state_snapshot.values if state_snapshot else {
+                "conversation": [],
+                "prompts": [initial_prompt],
+                "task": task,
+                "eval_system_prompt": eval_system_prompt,
+                "expected_react_final_response": expected_react_final_response,
+                "scores_prompt": [],
+                "scores_response": [],
+                "scores_chain_of_thought": [],
+                "messages_counts": [],
+                "max_attempts": max_attempts,
+                "attempts": 0
+            }
             state["attempts"] = 0
         result = await self._graph.ainvoke(state, config=config)
         return result
@@ -739,7 +743,7 @@ if __name__ == "__main__":
             expected_react_final_response="Must use working api, and real time data. A clean UI-style display with NO CODE OUTPUT, only the final visual results. Should show: (1) Title header, (2) Side-by-side comparison cards for each city showing current temp, conditions, wind, humidity with appropriate emojis, (3) Current timestamp, (4) A final recommendation section with clear winner and data-driven reasoning - all formatted as a visual interface, not code. Must use real data and determine winner based on actual conditions.",
             config={"configurable": {"thread_id": "fresh-start-2024"}, "recursion_limit": 100},
             max_attempts=3,
-            mode="init"
+            mode="continue"
         )
         scores_response = result["scores_response"]
         scores_chain_of_thought = result["scores_chain_of_thought"]
